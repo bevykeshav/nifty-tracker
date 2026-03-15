@@ -269,6 +269,25 @@ function showApp(data) {
   days.textContent = daysLeft + ' din baaki hain';
 
   document.getElementById('todayDate').textContent = getDate();
+  loadUserData();
+}
+
+async function loadUserData() {
+  const keyData = JSON.parse(localStorage.getItem('_niftyKeyData') || '{}');
+  const userName = keyData.name || 'Unknown';
+  const today = getDate();
+  try {
+    const url = 'https://script.google.com/macros/s/AKfycbxOnGu1g_jJAx7cdRSl4jnZVdwKVKLTn_73MRvJhHEF65NQ-xwyhRQTa3n-F_E4kbgmDw/exec?action=getUserData&name=' + encodeURIComponent(userName) + '&date=' + encodeURIComponent(today);
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.success && data.entries && data.entries.length) {
+      entries = data.entries;
+    } else {
+      entries = [];
+    }
+  } catch(e) {
+    entries = [];
+  }
   render();
 }
 

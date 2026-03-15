@@ -122,11 +122,11 @@ input[type=number]:focus{outline:none;border-color:#aaa;background:#fff;}
     <div class="row2">
       <div class="col">
         <label>Niche jaane ka % (DOWN)</label>
-        <input type="number" id="downProb" placeholder="e.g. 80" min="0" max="100"/>
+        <input type="number" id="downProb" placeholder="e.g. 80" min="0" max="100" oninput="autoCalc('down')"/>
       </div>
       <div class="col">
         <label>Upar jaane ka % (UP)</label>
-        <input type="number" id="upProb" placeholder="e.g. 20" min="0" max="100"/>
+        <input type="number" id="upProb" placeholder="e.g. 20" min="0" max="100" oninput="autoCalc('up')"/>
       </div>
     </div>
     <button class="btn" onclick="addEntry()">+ Entry add karo</button>
@@ -346,17 +346,22 @@ function render() {
   }
   sec.style.display = 'block';
   let td=0, tu=0;
-  entries.forEach(e=>{td+=e.down;tu+=e.up;});
-  const ad = Math.round(td/entries.length);
-  const au = Math.round(tu/entries.length);
+  entries.forEach(e=>{
+    td += parseInt(e.down) || 0;
+    tu += parseInt(e.up) || 0;
+  });
+  const ad = entries.length ? Math.round(td/entries.length) : 0;
+  const au = entries.length ? Math.round(tu/entries.length) : 0;
   document.getElementById('statsRow').innerHTML = `
     <div class="sbox"><div class="snum">${entries.length}</div><div class="slabel">Total Updates</div></div>
     <div class="sbox"><div class="snum" style="color:#b91c1c;">${ad}%</div><div class="slabel">Avg DOWN</div></div>
     <div class="sbox"><div class="snum" style="color:#15803d;">${au}%</div><div class="slabel">Avg UP</div></div>
   `;
   list.innerHTML = entries.map((e,i)=>{
-    let bc = e.down>e.up?'bd':e.up>e.down?'bu':'bm';
-    let bt = e.down>e.up?`DOWN ${e.down}%`:e.up>e.down?`UP ${e.up}%`:'MIXED';
+    const ed = parseInt(e.down) || 0;
+    const eu = parseInt(e.up) || 0;
+    let bc = ed>eu?'bd':eu>ed?'bu':'bm';
+    let bt = ed>eu?`DOWN ${ed}%`:eu>ed?`UP ${eu}%`:'MIXED';
     return `<div class="entry">
       <div class="entry-top">
         <span class="etime">${e.date} · ${e.time}</span>
@@ -368,6 +373,22 @@ function render() {
       <div class="enews">${e.news}</div>
     </div>`;
   }).join('');
+}
+
+function autoCalc(changed) {
+  const down = document.getElementById('downProb');
+  const up = document.getElementById('upProb');
+  let val = parseInt(changed === 'down' ? down.value : up.value) || 0;
+  if (val > 100) val = 100;
+  if (val < 0) val = 0;
+  const opposite = 100 - val;
+  if (changed === 'down') {
+    down.value = val;
+    up.value = opposite;
+  } else {
+    up.value = val;
+    down.value = opposite;
+  }
 }
 
 function addEntry() {

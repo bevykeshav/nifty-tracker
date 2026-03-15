@@ -287,8 +287,7 @@ function logout() {
 // TRACKER LOGIC
 // ============================================================
 
-let entries = [];
-try { entries = JSON.parse(localStorage.getItem('niftyTrackerV3') || '[]'); } catch(e) {}
+let entries = []; // Data Google Sheet se aata hai
 
 function getTime() {
   return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
@@ -297,7 +296,7 @@ function getDate() {
   return new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
 }
 function save() {
-  try { localStorage.setItem('niftyTrackerV3', JSON.stringify(entries)); } catch(e) {}
+  // Data Google Sheet mein save hota hai - localStorage nahi
 }
 
 async function syncToSheet() {

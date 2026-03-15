@@ -192,7 +192,7 @@ async function activateKey() {
   btn.disabled = true;
 
   try {
-    const res = await fetch('https://script.google.com/macros/s/AKfycbxOnGu1g_jJAx7cdRSl4jnZVdwKVKLTn_73MRvJhHEF65NQ-xwyhRQTa3n-F_E4kbgmDw/exec?action=verify&key=' + encodeURIComponent(key));
+    const res = await fetch('https://script.google.com/macros/s/AKfycbxCJoseKcmyO7nt210t-P8FTyH6ttwN5pZtcOU7XJdbN23tZUaUpJdt2B_MHnOHDAOWYQ/exec?action=verify&key=' + encodeURIComponent(key));
     const data = await res.json();
 
     if (!data.success) {
@@ -223,7 +223,7 @@ async function checkSavedKey() {
   const key = localStorage.getItem('_niftyKey');
   if (!key) return false;
   try {
-    const res = await fetch('https://script.google.com/macros/s/AKfycbxOnGu1g_jJAx7cdRSl4jnZVdwKVKLTn_73MRvJhHEF65NQ-xwyhRQTa3n-F_E4kbgmDw/exec?action=verify&key=' + encodeURIComponent(key));
+    const res = await fetch('https://script.google.com/macros/s/AKfycbxCJoseKcmyO7nt210t-P8FTyH6ttwN5pZtcOU7XJdbN23tZUaUpJdt2B_MHnOHDAOWYQ/exec?action=verify&key=' + encodeURIComponent(key));
     const data = await res.json();
     if (!data.success) {
       showExpired(data.message);
@@ -277,7 +277,7 @@ async function loadUserData() {
   const userName = keyData.name || 'Unknown';
   const today = getDate();
   try {
-    const url = 'https://script.google.com/macros/s/AKfycbxOnGu1g_jJAx7cdRSl4jnZVdwKVKLTn_73MRvJhHEF65NQ-xwyhRQTa3n-F_E4kbgmDw/exec?action=getUserData&name=' + encodeURIComponent(userName) + '&date=' + encodeURIComponent(today);
+    const url = 'https://script.google.com/macros/s/AKfycbxCJoseKcmyO7nt210t-P8FTyH6ttwN5pZtcOU7XJdbN23tZUaUpJdt2B_MHnOHDAOWYQ/exec?action=getUserData&name=' + encodeURIComponent(userName) + '&date=' + encodeURIComponent(today);
     const res = await fetch(url);
     const data = await res.json();
     if (data.success && data.entries && data.entries.length) {
@@ -332,7 +332,7 @@ async function syncToSheet() {
     time: e.time || ''
   }));
   try {
-    await fetch('https://script.google.com/macros/s/AKfycbxOnGu1g_jJAx7cdRSl4jnZVdwKVKLTn_73MRvJhHEF65NQ-xwyhRQTa3n-F_E4kbgmDw/exec', {
+    await fetch('https://script.google.com/macros/s/AKfycbxCJoseKcmyO7nt210t-P8FTyH6ttwN5pZtcOU7XJdbN23tZUaUpJdt2B_MHnOHDAOWYQ/exec', {
       method: 'POST',
       body: JSON.stringify({
         action: 'saveData',

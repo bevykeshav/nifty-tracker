@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nifty News Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh;}
+
+/* ---- LICENCE SCREEN ---- */
+#licenceScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem;}
+.licence-box{background:#fff;border:1px solid #e5e5e5;border-radius:16px;padding:2rem;max-width:420px;width:100%;text-align:center;}
+.licence-box h2{font-size:22px;font-weight:600;margin-bottom:6px;}
+.licence-box p{font-size:14px;color:#666;margin-bottom:1.5rem;line-height:1.6;}
+.licence-input{width:100%;padding:12px 14px;font-size:15px;border:1.5px solid #e0e0e0;border-radius:10px;text-align:center;letter-spacing:0.08em;font-family:monospace;background:#fafafa;color:#1a1a1a;margin-bottom:10px;}
+.licence-input:focus{outline:none;border-color:#1a1a1a;background:#fff;}
+.licence-btn{width:100%;padding:13px;font-size:15px;font-weight:600;cursor:pointer;background:#1a1a1a;border:none;border-radius:10px;color:#fff;transition:background 0.15s;}
+.licence-btn:hover{background:#333;}
+.licence-err{font-size:13px;color:#b91c1c;margin-top:8px;min-height:18px;}
+.licence-info{margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid #f0f0ee;font-size:12px;color:#aaa;line-height:1.7;}
+.licence-info a{color:#666;text-decoration:none;}
+.licence-info a:hover{text-decoration:underline;}
+
+/* ---- MAIN APP ---- */
+#app{display:none;padding:1.5rem;max-width:680px;margin:0 auto;}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;}
+.topbar h1{font-size:20px;font-weight:600;}
+.key-info{text-align:right;}
+.key-badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:3px;}
+.key-green{background:#f0fdf4;color:#15803d;}
+.key-red{background:#fef2f2;color:#b91c1c;}
+.key-yellow{background:#fffbeb;color:#b45309;}
+.key-days{font-size:12px;color:#888;}
+.card{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1.25rem;margin-bottom:14px;}
+.sec-label{font-size:11px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;}
+textarea{width:100%;min-height:100px;resize:vertical;font-family:inherit;font-size:14px;padding:10px 12px;border:1px solid #e0e0e0;border-radius:8px;background:#fafafa;color:#1a1a1a;line-height:1.6;}
+textarea:focus{outline:none;border-color:#aaa;background:#fff;}
+.row2{display:flex;gap:12px;margin-top:10px;}
+.col{flex:1;}
+.col label{font-size:12px;color:#666;display:block;margin-bottom:5px;font-weight:500;}
+input[type=number]{width:100%;padding:9px 12px;font-size:14px;border:1px solid #e0e0e0;border-radius:8px;background:#fafafa;color:#1a1a1a;}
+input[type=number]:focus{outline:none;border-color:#aaa;background:#fff;}
+.btn{width:100%;padding:11px;font-size:14px;font-weight:500;cursor:pointer;background:#1a1a1a;border:none;border-radius:8px;color:#fff;margin-top:12px;transition:background 0.15s;}
+.btn:hover{background:#333;}
+.btn-analyze{font-size:15px;padding:13px;}
+.entry{background:#fff;border:1px solid #e5e5e5;border-radius:10px;padding:12px 14px;margin-bottom:8px;}
+.entry-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.etime{font-size:12px;color:#888;}
+.badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.bd{background:#fef2f2;color:#b91c1c;}
+.bu{background:#f0fdf4;color:#15803d;}
+.bm{background:#fffbeb;color:#b45309;}
+.enews{font-size:13px;line-height:1.65;white-space:pre-wrap;color:#333;}
+.delbtn{font-size:11px;color:#aaa;cursor:pointer;background:none;border:none;padding:3px 7px;border-radius:4px;}
+.delbtn:hover{color:#b91c1c;background:#fef2f2;}
+.empty{text-align:center;padding:2.5rem;color:#aaa;font-size:13px;}
+.stats{display:flex;gap:10px;margin-bottom:14px;}
+.sbox{flex:1;background:#f9f9f7;border-radius:10px;padding:12px;text-align:center;border:1px solid #efefed;}
+.snum{font-size:24px;font-weight:600;}
+.slabel{font-size:11px;color:#888;margin-top:3px;}
+.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.clr{font-size:12px;color:#aaa;cursor:pointer;background:none;border:none;padding:4px 8px;border-radius:4px;}
+.clr:hover{color:#b91c1c;background:#fef2f2;}
+.analysis-box{background:#f9f9f7;border:1px solid #e5e5e5;border-radius:12px;padding:1.25rem;margin-top:14px;}
+.prompt-text{font-size:13px;line-height:1.7;color:#333;white-space:pre-wrap;background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:12px;max-height:280px;overflow-y:auto;}
+.copy-btn{width:100%;padding:10px;font-size:14px;font-weight:500;cursor:pointer;background:#fff;border:1px solid #e0e0e0;border-radius:8px;color:#1a1a1a;margin-top:10px;}
+.copy-btn:hover{background:#f0fdf4;border-color:#15803d;color:#15803d;}
+.copy-btn.copied{background:#f0fdf4;border-color:#15803d;color:#15803d;}
+.step-box{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:13px;color:#92400e;line-height:1.8;}
+.logout-btn{font-size:12px;color:#aaa;cursor:pointer;background:none;border:1px solid #e0e0e0;padding:5px 10px;border-radius:6px;margin-top:6px;}
+.logout-btn:hover{color:#b91c1c;border-color:#b91c1c;}
+.date-chip{display:inline-block;background:#f0f0ee;color:#555;font-size:12px;padding:3px 10px;border-radius:20px;margin-bottom:1rem;}
+</style>
+</head>
+<body>
+
+<!-- LICENCE SCREEN -->
+<div id="licenceScreen">
+  <div class="licence-box">
+    <div style="font-size:32px;margin-bottom:12px;">📈</div>
+    <h2>Nifty News Tracker</h2>
+    <p>Din bhar ki news track karo aur Nifty ki direction predict karo.<br>Access ke liye apni licence key daalo.</p>
+    <input class="licence-input" id="keyInput" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" oninput="formatKey(this)" onkeydown="if(event.key==='Enter')activateKey()"/>
+    <button class="licence-btn" onclick="activateKey()">Access karo</button>
+    <div class="licence-err" id="keyErr"></div>
+    <div class="licence-info">
+      Key nahi hai? Payment karke lo.<br>
+      <a href="YOUR_PAYMENT_LINK" target="_blank">Yahan click karo → Subscribe karo</a><br><br>
+      Support: <a href="mailto:YOUR_EMAIL">your@email.com</a>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="topbar">
+    <div>
+      <h1>Nifty News Tracker</h1>
+      <div class="date-chip" id="todayDate"></div>
+    </div>
+    <div class="key-info">
+      <div class="key-badge" id="keyBadge"></div>
+      <div class="key-days" id="keyDays"></div>
+      <br>
+      <button class="logout-btn" onclick="logout()">Key change karo</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-label">Naya update daalo</div>
+    <textarea id="newsInput" placeholder="News ke important points yahan paste karo..."></textarea>
+    <div class="row2">
+      <div class="col">
+        <label>Niche jaane ka % (DOWN)</label>
+        <input type="number" id="downProb" placeholder="e.g. 80" min="0" max="100"/>
+      </div>
+      <div class="col">
+        <label>Upar jaane ka % (UP)</label>
+        <input type="number" id="upProb" placeholder="e.g. 20" min="0" max="100"/>
+      </div>
+    </div>
+    <button class="btn" onclick="addEntry()">+ Entry add karo</button>
+  </div>
+
+  <div class="hdr">
+    <div class="sec-label" style="margin-bottom:0;">Aaj ke updates</div>
+    <button class="clr" onclick="clearAll()">Sab clear karo</button>
+  </div>
+
+  <div id="list"></div>
+
+  <div id="analyzeSection" style="display:none;">
+    <div class="stats" id="statsRow"></div>
+    <button class="btn btn-analyze" onclick="generatePrompt()">Pura din ka analysis nikalo →</button>
+    <div id="promptBox"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// KEY SYSTEM
+// ============================================================
+
+// Device ID — browser fingerprint (no server needed)
+function getDeviceId() {
+  let id = localStorage.getItem('_devid');
+  if (!id) {
+    id = 'DEV-' + Math.random().toString(36).substr(2,9).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
+    localStorage.setItem('_devid', id);
+  }
+  return id;
+}
+
+// Key format: XXXX-XXXX-XXXX-XXXX
+// Encoded inside: base64(JSON{user, expiry, deviceId, checksum})
+// Tu admin tool se key generate karega
+
+function formatKey(input) {
+  let val = input.value.replace(/[^A-Z0-9a-z]/g,'').toUpperCase();
+  let parts = val.match(/.{1,4}/g) || [];
+  input.value = parts.join('-').substr(0,19);
+}
+
+function decodeKey(key) {
+  try {
+    const clean = key.replace(/-/g,'');
+    const decoded = atob(clean);
+    return JSON.parse(decoded);
+  } catch(e) {
+    return null;
+  }
+}
+
+function activateKey() {
+  const key = document.getElementById('keyInput').value.trim().toUpperCase();
+  const err = document.getElementById('keyErr');
+  err.textContent = '';
+
+  if (key.length < 10) {
+    err.textContent = 'Key bahut choti hai. Sahi key daalo.';
+    return;
+  }
+
+  const data = decodeKey(key);
+  if (!data || !data.expiry || !data.deviceId) {
+    err.textContent = 'Key galat hai. Dobara check karo.';
+    return;
+  }
+
+  const deviceId = getDeviceId();
+  if (data.deviceId !== 'ANY' && data.deviceId !== deviceId) {
+    err.textContent = 'Ye key is device ke liye nahi hai. Support se contact karo.';
+    return;
+  }
+
+  const now = Date.now();
+  if (now > data.expiry) {
+    err.textContent = 'Key expire ho gayi hai. Renew karo.';
+    return;
+  }
+
+  // Valid! Save karo
+  localStorage.setItem('_niftyKey', key);
+  localStorage.setItem('_niftyKeyData', JSON.stringify(data));
+  showApp(data);
+}
+
+function checkSavedKey() {
+  const key = localStorage.getItem('_niftyKey');
+  const dataStr = localStorage.getItem('_niftyKeyData');
+  if (!key || !dataStr) return false;
+  try {
+    const data = JSON.parse(dataStr);
+    const deviceId = getDeviceId();
+    if (data.deviceId !== 'ANY' && data.deviceId !== deviceId) return false;
+    if (Date.now() > data.expiry) {
+      showExpired();
+      return false;
+    }
+    showApp(data);
+    return true;
+  } catch(e) { return false; }
+}
+
+function showExpired() {
+  document.getElementById('keyErr').textContent = 'Teri key expire ho gayi hai. Renew karo.';
+  document.getElementById('licenceScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+function showApp(data) {
+  document.getElementById('licenceScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  const now = Date.now();
+  const daysLeft = Math.ceil((data.expiry - now) / (1000*60*60*24));
+  const badge = document.getElementById('keyBadge');
+  const days = document.getElementById('keyDays');
+
+  if (daysLeft <= 3) {
+    badge.className = 'key-badge key-yellow';
+    badge.textContent = 'Sirf ' + daysLeft + ' din bache!';
+  } else {
+    badge.className = 'key-badge key-green';
+    badge.textContent = 'Active';
+  }
+  days.textContent = daysLeft + ' din baaki hain';
+
+  document.getElementById('todayDate').textContent = getDate();
+  render();
+}
+
+function logout() {
+  if (confirm('Key hata dein? Dobara key dalni padegi.')) {
+    localStorage.removeItem('_niftyKey');
+    localStorage.removeItem('_niftyKeyData');
+    document.getElementById('licenceScreen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('keyInput').value = '';
+    document.getElementById('keyErr').textContent = '';
+  }
+}
+
+// ============================================================
+// TRACKER LOGIC
+// ============================================================
+
+let entries = [];
+try { entries = JSON.parse(localStorage.getItem('niftyTrackerV3') || '[]'); } catch(e) {}
+
+function getTime() {
+  return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+function getDate() {
+  return new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+}
+function save() {
+  try { localStorage.setItem('niftyTrackerV3', JSON.stringify(entries)); } catch(e) {}
+}
+
+function render() {
+  const list = document.getElementById('list');
+  const sec = document.getElementById('analyzeSection');
+  if (!entries.length) {
+    list.innerHTML = '<div class="empty">Abhi koi entry nahi hai.<br>Upar se news aur % daalo.</div>';
+    sec.style.display = 'none';
+    return;
+  }
+  sec.style.display = 'block';
+  let td=0, tu=0;
+  entries.forEach(e=>{td+=e.down;tu+=e.up;});
+  const ad = Math.round(td/entries.length);
+  const au = Math.round(tu/entries.length);
+  document.getElementById('statsRow').innerHTML = `
+    <div class="sbox"><div class="snum">${entries.length}</div><div class="slabel">Total Updates</div></div>
+    <div class="sbox"><div class="snum" style="color:#b91c1c;">${ad}%</div><div class="slabel">Avg DOWN</div></div>
+    <div class="sbox"><div class="snum" style="color:#15803d;">${au}%</div><div class="slabel">Avg UP</div></div>
+  `;
+  list.innerHTML = entries.map((e,i)=>{
+    let bc = e.down>e.up?'bd':e.up>e.down?'bu':'bm';
+    let bt = e.down>e.up?`DOWN ${e.down}%`:e.up>e.down?`UP ${e.up}%`:'MIXED';
+    return `<div class="entry">
+      <div class="entry-top">
+        <span class="etime">${e.date} · ${e.time}</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span class="badge ${bc}">${bt}</span>
+          <button class="delbtn" onclick="del(${i})">✕</button>
+        </div>
+      </div>
+      <div class="enews">${e.news}</div>
+    </div>`;
+  }).join('');
+}
+
+function addEntry() {
+  const news = document.getElementById('newsInput').value.trim();
+  const down = parseInt(document.getElementById('downProb').value)||0;
+  const up = parseInt(document.getElementById('upProb').value)||0;
+  if (!news){alert('Pehle news points daalo!');return;}
+  entries.push({news,down,up,date:getDate(),time:getTime()});
+  save();
+  document.getElementById('newsInput').value='';
+  document.getElementById('downProb').value='';
+  document.getElementById('upProb').value='';
+  document.getElementById('promptBox').innerHTML='';
+  render();
+}
+
+function del(i) {
+  entries.splice(i,1);
+  save();
+  document.getElementById('promptBox').innerHTML='';
+  render();
+}
+
+function clearAll() {
+  if (confirm('Sab entries delete karni hain?')) {
+    entries=[];
+    save();
+    document.getElementById('promptBox').innerHTML='';
+    render();
+  }
+}
+
+function generatePrompt() {
+  const summary = entries.map((e,i)=>
+    `Update ${i+1} (${e.time}): DOWN ${e.down}%, UP ${e.up}%\n${e.news}`
+  ).join('\n\n---\n\n');
+  const prompt = `Aaj ke Nifty market ke ${entries.length} updates hain. Inhe padhkar final analysis de Hinglish mein.\n\n${summary}\n\nAnalysis mein yeh do:\n1. Weighted average nikaal (recent updates ko zyada weight)\n2. Overall news sentiment (bullish/bearish/mixed)\n3. Top 2-3 key factors jo direction decide karenge\n4. FINAL VERDICT ek line mein — Nifty UP ya DOWN, kitne confidence ke saath\n\nSimple bullet points mein likho.`;
+  document.getElementById('promptBox').innerHTML = `
+    <div class="analysis-box">
+      <div class="sec-label">Claude ko ye prompt do</div>
+      <div class="prompt-text" id="promptContent">${prompt}</div>
+      <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">Prompt copy karo</button>
+      <div class="step-box">
+        <strong>Steps:</strong><br>
+        1. Upar "Prompt copy karo" dabao<br>
+        2. claude.ai kholo → New chat<br>
+        3. Paste karo → Enter daabo<br>
+        4. Full analysis aa jaayegi!
+      </div>
+    </div>`;
+}
+
+function copyPrompt() {
+  const text = document.getElementById('promptContent').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copy ho gaya!';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Prompt copy karo';btn.classList.remove('copied');},2000);
+  });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+if (!checkSavedKey()) {
+  document.getElementById('licenceScreen').style.display = 'flex';
+}
+</script>
+</body>
+</html>

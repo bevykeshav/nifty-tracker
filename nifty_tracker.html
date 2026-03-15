@@ -322,17 +322,26 @@ async function syncToSheet() {
   const keyData = JSON.parse(localStorage.getItem('_niftyKeyData') || '{}');
   const userName = keyData.name || 'Unknown';
   if (!entries.length) return;
+  const today = getDate();
+  // Saari entries clean karke bhejo - Sheet pehle delete karke fresh save karta hai
+  const cleanEntries = entries.map(e => ({
+    news: e.news,
+    down: parseInt(String(e.down).replace('%','')) || 0,
+    up: parseInt(String(e.up).replace('%','')) || 0,
+    date: today,
+    time: e.time || ''
+  }));
   try {
     await fetch('https://script.google.com/macros/s/AKfycbxOnGu1g_jJAx7cdRSl4jnZVdwKVKLTn_73MRvJhHEF65NQ-xwyhRQTa3n-F_E4kbgmDw/exec', {
       method: 'POST',
       body: JSON.stringify({
         action: 'saveData',
         name: userName,
-        entries: entries
+        entries: cleanEntries
       })
     });
   } catch(e) {
-    // Silent fail - data localStorage mein safe hai
+    // Silent fail
   }
 }
 
@@ -347,8 +356,8 @@ function render() {
   sec.style.display = 'block';
   let td=0, tu=0;
   entries.forEach(e=>{
-    td += parseInt(e.down) || 0;
-    tu += parseInt(e.up) || 0;
+    td += parseFloat(String(e.down).replace('%','')) || 0;
+    tu += parseFloat(String(e.up).replace('%','')) || 0;
   });
   const ad = entries.length ? Math.round(td/entries.length) : 0;
   const au = entries.length ? Math.round(tu/entries.length) : 0;
@@ -358,8 +367,8 @@ function render() {
     <div class="sbox"><div class="snum" style="color:#15803d;">${au}%</div><div class="slabel">Avg UP</div></div>
   `;
   list.innerHTML = entries.map((e,i)=>{
-    const ed = parseInt(e.down) || 0;
-    const eu = parseInt(e.up) || 0;
+    const ed = parseFloat(String(e.down).replace('%','')) || 0;
+    const eu = parseFloat(String(e.up).replace('%','')) || 0;
     let bc = ed>eu?'bd':eu>ed?'bu':'bm';
     let bt = ed>eu?`DOWN ${ed}%`:eu>ed?`UP ${eu}%`:'MIXED';
     // Date fix - GMT format se readable banao

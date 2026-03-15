@@ -121,12 +121,12 @@ input[type=number]:focus{outline:none;border-color:#aaa;background:#fff;}
     <textarea id="newsInput" placeholder="News ke important points yahan paste karo..."></textarea>
     <div class="row2">
       <div class="col">
-        <label>Niche jaane ka % (DOWN)</label>
-        <input type="number" id="downProb" placeholder="e.g. 80" min="0" max="100" oninput="autoCalc('down')"/>
+        <label>Nifty 50 UP %</label>
+        <input type="number" id="upProb" placeholder="e.g. 20" min="0" max="100" oninput="autoCalc('up')"/>
       </div>
       <div class="col">
-        <label>Upar jaane ka % (UP)</label>
-        <input type="number" id="upProb" placeholder="e.g. 20" min="0" max="100" oninput="autoCalc('up')"/>
+        <label>Nifty 50 DOWN %</label>
+        <input type="number" id="downProb" placeholder="e.g. 80" min="0" max="100" oninput="autoCalc('down')"/>
       </div>
     </div>
     <button class="btn" onclick="addEntry()">+ Entry add karo</button>
@@ -362,9 +362,16 @@ function render() {
     const eu = parseInt(e.up) || 0;
     let bc = ed>eu?'bd':eu>ed?'bu':'bm';
     let bt = ed>eu?`DOWN ${ed}%`:eu>ed?`UP ${eu}%`:'MIXED';
+    // Date fix - GMT format se readable banao
+    let displayDate = e.date || '';
+    try {
+      if (displayDate.includes('GMT') || displayDate.includes('UTC')) {
+        displayDate = new Date(displayDate).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
+      }
+    } catch(ex) {}
     return `<div class="entry">
       <div class="entry-top">
-        <span class="etime">${e.date} · ${e.time}</span>
+        <span class="etime">${displayDate}${e.time ? ' · ' + e.time : ''}</span>
         <div style="display:flex;gap:6px;align-items:center;">
           <span class="badge ${bc}">${bt}</span>
           <button class="delbtn" onclick="del(${i})">✕</button>

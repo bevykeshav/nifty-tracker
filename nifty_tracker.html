@@ -96,7 +96,7 @@ input[type=number]:focus{outline:none;border-color:#aaa;background:#fff;}
         <a href="upi://pay?pa=kzz64361-1@okhdfcbank&pn=NiftyTracker&am=59&cu=INR" style="background:#f97316;color:#fff;font-size:11px;font-weight:600;padding:7px 12px;border-radius:20px;text-decoration:none;">UPI</a>
       </div><br>
       <a href="https://docs.google.com/forms/d/e/1FAIpQLSeu5nM3ZWW3mNoSDIbX-DAopRVQfxOCjn2X1X-cHnoqY9jLsQ/viewform?usp=dialog" target="_blank" style="color:#1a1a1a;font-weight:700;text-decoration:underline;">👉 Payment ke baad Google Form fill karo</a> — key 24 ghante mein milegi.<br><br>
-      Support: <a href="mailto:kzz64361@gmail.com" style="color:#333;font-weight:600;">kzz64361@gmail.com</a>
+      Support: <a href="/cdn-cgi/l/email-protection#f59e8f8fc3c1c6c3c4b59298949c99db969a98" style="color:#333;font-weight:600;"><span class="__cf_email__" data-cfemail="503b2a2a666463666110373d31393c7e333f3d">[email&#160;protected]</span></a>
     </div>
   </div>
 </div>
@@ -141,12 +141,10 @@ input[type=number]:focus{outline:none;border-color:#aaa;background:#fff;}
 
   <div id="analyzeSection" style="display:none;">
     <div class="stats" id="statsRow"></div>
-    <button class="btn btn-analyze" onclick="generatePrompt()">Pura din ka analysis nikalo →</button>
-    <div id="promptBox"></div>
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ============================================================
 // KEY SYSTEM
 // ============================================================
@@ -348,14 +346,14 @@ function addEntry() {
   document.getElementById('newsInput').value='';
   document.getElementById('downProb').value='';
   document.getElementById('upProb').value='';
-  document.getElementById('promptBox').innerHTML='';
+  
   render();
 }
 
 function del(i) {
   entries.splice(i,1);
   save();
-  document.getElementById('promptBox').innerHTML='';
+  
   render();
 }
 
@@ -363,49 +361,11 @@ function clearAll() {
   if (confirm('Sab entries delete karni hain?')) {
     entries=[];
     save();
-    document.getElementById('promptBox').innerHTML='';
+    
     render();
   }
 }
 
-function generatePrompt() {
-  const summary = entries.map((e,i)=>
-    `Update ${i+1} (${e.time}): DOWN ${e.down}%, UP ${e.up}%\n${e.news}`
-  ).join('\n\n---\n\n');
-  const prompt = `Aaj ke Nifty market ke ${entries.length} updates hain. Inhe padhkar final analysis de Hinglish mein.\n\n${summary}\n\nAnalysis mein yeh do:\n1. Weighted average nikaal (recent updates ko zyada weight)\n2. Overall news sentiment (bullish/bearish/mixed)\n3. Top 2-3 key factors jo direction decide karenge\n4. FINAL VERDICT ek line mein — Nifty UP ya DOWN, kitne confidence ke saath\n\nSimple bullet points mein likho.`;
-  document.getElementById('promptBox').innerHTML = `
-    <div class="analysis-box">
-      <div class="sec-label">Claude ko ye prompt do</div>
-      <div class="prompt-text" id="promptContent">${prompt}</div>
-      <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">Prompt copy karo</button>
-      <div class="step-box">
-        <strong>Steps:</strong><br>
-        1. Upar "Prompt copy karo" dabao<br>
-        2. claude.ai kholo → New chat<br>
-        3. Paste karo → Enter daabo<br>
-        4. Full analysis aa jaayegi!
-      </div>
-    </div>`;
-}
 
-function copyPrompt() {
-  const text = document.getElementById('promptContent').textContent;
-  navigator.clipboard.writeText(text).then(()=>{
-    const btn = document.getElementById('copyBtn');
-    btn.textContent = '✓ Copy ho gaya!';
-    btn.classList.add('copied');
-    setTimeout(()=>{btn.textContent='Prompt copy karo';btn.classList.remove('copied');},2000);
-  });
-}
 
-// ============================================================
-// INIT
-// ============================================================
-checkSavedKey().then(found => {
-  if (!found) {
-    document.getElementById('licenceScreen').style.display = 'flex';
-  }
-});
-</script>
-</body>
-</html>
+// ===========================================

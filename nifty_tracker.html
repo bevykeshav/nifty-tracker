@@ -164,9 +164,7 @@ function getDeviceId() {
 // Tu admin tool se key generate karega
 
 function formatKey(input) {
-  let val = input.value.replace(/[^A-Z0-9a-z]/g,'').toUpperCase();
-  let parts = val.match(/.{1,4}/g) || [];
-  input.value = parts.join('-').substr(0,19);
+  input.value = input.value.replace(/[^A-Z0-9a-z]/g,'').toUpperCase();
 }
 
 function decodeKey(key) {

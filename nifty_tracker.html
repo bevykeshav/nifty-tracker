@@ -181,59 +181,76 @@ function decodeKey(key) {
   }
 }
 
-function activateKey() {
+async function activateKey() {
   const key = document.getElementById('keyInput').value.trim().toUpperCase();
   const err = document.getElementById('keyErr');
+  const btn = document.querySelector('.licence-btn');
   err.textContent = '';
 
-  if (key.length < 10) {
+  if (key.length < 5) {
     err.textContent = 'Key bahut choti hai. Sahi key daalo.';
     return;
   }
 
-  const data = decodeKey(key);
-  if (!data || !data.expiry || !data.deviceId) {
-    err.textContent = 'Key galat hai. Dobara check karo.';
-    return;
-  }
+  btn.textContent = 'Verify ho rahi hai...';
+  btn.disabled = true;
 
-  const deviceId = getDeviceId();
-  if (data.deviceId !== 'ANY' && data.deviceId !== deviceId) {
-    err.textContent = 'Ye key is device ke liye nahi hai. Support se contact karo.';
-    return;
-  }
+  try {
+    const res = await fetch('https://script.google.com/macros/s/AKfycbxOnGu1g_jJAx7cdRSl4jnZVdwKVKLTn_73MRvJhHEF65NQ-xwyhRQTa3n-F_E4kbgmDw/exec?action=verify&key=' + encodeURIComponent(key));
+    const data = await res.json();
 
-  const now = Date.now();
-  if (now > data.expiry) {
-    err.textContent = 'Key expire ho gayi hai. Renew karo.';
-    return;
-  }
+    if (!data.success) {
+      err.textContent = data.message || 'Key galat hai.';
+      btn.textContent = 'Access karo';
+      btn.disabled = false;
+      return;
+    }
 
-  // Valid! Save karo
-  localStorage.setItem('_niftyKey', key);
-  localStorage.setItem('_niftyKeyData', JSON.stringify(data));
-  showApp(data);
+    // Valid! Save karo
+    const keyData = {
+      name: data.name,
+      daysLeft: data.daysLeft,
+      expiry: data.expiry
+    };
+    localStorage.setItem('_niftyKey', key);
+    localStorage.setItem('_niftyKeyData', JSON.stringify(keyData));
+    showApp(keyData);
+
+  } catch(e) {
+    err.textContent = 'Network error. Internet check karo aur dobara try karo.';
+    btn.textContent = 'Access karo';
+    btn.disabled = false;
+  }
 }
 
-function checkSavedKey() {
+async function checkSavedKey() {
   const key = localStorage.getItem('_niftyKey');
-  const dataStr = localStorage.getItem('_niftyKeyData');
-  if (!key || !dataStr) return false;
+  if (!key) return false;
   try {
-    const data = JSON.parse(dataStr);
-    const deviceId = getDeviceId();
-    if (data.deviceId !== 'ANY' && data.deviceId !== deviceId) return false;
-    if (Date.now() > data.expiry) {
-      showExpired();
+    const res = await fetch('https://script.google.com/macros/s/AKfycbxOnGu1g_jJAx7cdRSl4jnZVdwKVKLTn_73MRvJhHEF65NQ-xwyhRQTa3n-F_E4kbgmDw/exec?action=verify&key=' + encodeURIComponent(key));
+    const data = await res.json();
+    if (!data.success) {
+      showExpired(data.message);
       return false;
     }
-    showApp(data);
+    const keyData = { name: data.name, daysLeft: data.daysLeft, expiry: data.expiry };
+    localStorage.setItem('_niftyKeyData', JSON.stringify(keyData));
+    showApp(keyData);
     return true;
-  } catch(e) { return false; }
+  } catch(e) {
+    // Network error - use cached data
+    const dataStr = localStorage.getItem('_niftyKeyData');
+    if (dataStr) {
+      const data = JSON.parse(dataStr);
+      showApp(data);
+      return true;
+    }
+    return false;
+  }
 }
 
-function showExpired() {
-  document.getElementById('keyErr').textContent = 'Teri key expire ho gayi hai. Renew karo.';
+function showExpired(msg) {
+  document.getElementById('keyErr').textContent = msg || 'Teri key expire ho gayi hai. Renew karo.';
   document.getElementById('licenceScreen').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
 }
@@ -242,8 +259,7 @@ function showApp(data) {
   document.getElementById('licenceScreen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 
-  const now = Date.now();
-  const daysLeft = Math.ceil((data.expiry - now) / (1000*60*60*24));
+  const daysLeft = data.daysLeft || 30;
   const badge = document.getElementById('keyBadge');
   const days = document.getElementById('keyDays');
 
@@ -385,9 +401,11 @@ function copyPrompt() {
 // ============================================================
 // INIT
 // ============================================================
-if (!checkSavedKey()) {
-  document.getElementById('licenceScreen').style.display = 'flex';
-}
+checkSavedKey().then(found => {
+  if (!found) {
+    document.getElementById('licenceScreen').style.display = 'flex';
+  }
+});
 </script>
 </body>
 </html>

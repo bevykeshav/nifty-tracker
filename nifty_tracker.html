@@ -141,6 +141,7 @@ input[type=number]:focus{outline:none;border-color:#aaa;background:#fff;}
 
   <div id="analyzeSection" style="display:none;">
     <div class="stats" id="statsRow"></div>
+    <button class="btn" style="background:#25d366;margin-top:12px;font-size:14px;" onclick="shareOnWhatsApp()">📱 WhatsApp pe Report Share Karo</button>
   </div>
 </div>
 
@@ -389,6 +390,71 @@ function render() {
       <div class="enews">${e.news}</div>
     </div>`;
   }).join('');
+}
+
+function shareOnWhatsApp() {
+  if (!entries.length) { alert('Pehle entries daalo!'); return; }
+
+  const today = getDate();
+  let totalUp = 0, totalDown = 0;
+  entries.forEach(e => {
+    totalUp += parseFloat(String(e.up).replace('%','')) || 0;
+    totalDown += parseFloat(String(e.down).replace('%','')) || 0;
+  });
+  const avgUp = Math.round(totalUp / entries.length);
+  const avgDown = Math.round(totalDown / entries.length);
+
+  // Final verdict
+  let verdict = '';
+  if (avgUp > avgDown) {
+    verdict = '📈 *NIFTY UP* (' + avgUp + '% probability)';
+  } else if (avgDown > avgUp) {
+    verdict = '📉 *NIFTY DOWN* (' + avgDown + '% probability)';
+  } else {
+    verdict = '↔️ *MIXED/NEUTRAL*';
+  }
+
+  // Report banana
+  let report = '📊 *Nifty 50 Daily Report*
+';
+  report += '📅 Date: ' + today + '
+';
+  report += '━━━━━━━━━━━━━━━━━━
+
+';
+
+  report += '*📰 News Updates:*
+';
+  entries.forEach((e, i) => {
+    const up = parseFloat(String(e.up).replace('%','')) || 0;
+    const down = parseFloat(String(e.down).replace('%','')) || 0;
+    const arrow = up > down ? '📈' : down > up ? '📉' : '↔️';
+    report += (i+1) + '. ' + arrow + ' ' + e.news + '
+';
+    report += '   ⬆️ UP: ' + up + '% | ⬇️ DOWN: ' + down + '%
+
+';
+  });
+
+  report += '━━━━━━━━━━━━━━━━━━
+';
+  report += '*📊 Average Analysis:*
+';
+  report += '⬆️ Avg UP: ' + avgUp + '%
+';
+  report += '⬇️ Avg DOWN: ' + avgDown + '%
+
+';
+  report += '*🎯 Final Verdict:*
+';
+  report += verdict + '
+';
+  report += '━━━━━━━━━━━━━━━━━━
+';
+  report += '_Powered by Nifty News Tracker_';
+
+  const waUrl = 'https://wa.me/?text=' + encodeURIComponent(report);
+  window.open(waUrl, '_blank');
 }
 
 function autoCalc(changed) {

@@ -180,7 +180,7 @@ function decodeKey(key) {
 
 async function activateKey() {
   const key = document.getElementById('keyInput').value.trim().toUpperCase();
-  const err = document.getElementById('keyErr'); 
+  const err = document.getElementById('keyErr');
   const btn = document.querySelector('.licence-btn');
   err.textContent = '';
 
@@ -394,7 +394,6 @@ function render() {
 
 function shareOnWhatsApp() {
   if (!entries.length) { alert('Pehle entries daalo!'); return; }
-
   const today = getDate();
   let totalUp = 0, totalDown = 0;
   entries.forEach(e => {
@@ -403,60 +402,35 @@ function shareOnWhatsApp() {
   });
   const avgUp = Math.round(totalUp / entries.length);
   const avgDown = Math.round(totalDown / entries.length);
-
-  // Final verdict
   let verdict = '';
   if (avgUp > avgDown) {
-    verdict = '📈 *NIFTY UP* (' + avgUp + '% probability)';
+    verdict = 'NIFTY UP (' + avgUp + '% probability)';
   } else if (avgDown > avgUp) {
-    verdict = '📉 *NIFTY DOWN* (' + avgDown + '% probability)';
+    verdict = 'NIFTY DOWN (' + avgDown + '% probability)';
   } else {
-    verdict = '↔️ *MIXED/NEUTRAL*';
+    verdict = 'MIXED/NEUTRAL';
   }
-
-  // Report banana
-  let report = '📊 *Nifty 50 Daily Report*
-';
-  report += '📅 Date: ' + today + '
-';
-  report += '━━━━━━━━━━━━━━━━━━
-
-';
-
-  report += '*📰 News Updates:*
-';
-  entries.forEach((e, i) => {
+  let report = '*Nifty 50 Daily Report*\n';
+  report += 'Date: ' + today + '\n';
+  report += '--------------------\n\n';
+  report += '*News Updates:*\n';
+  entries.forEach(function(e, i) {
     const up = parseFloat(String(e.up).replace('%','')) || 0;
     const down = parseFloat(String(e.down).replace('%','')) || 0;
-    const arrow = up > down ? '📈' : down > up ? '📉' : '↔️';
-    report += (i+1) + '. ' + arrow + ' ' + e.news + '
-';
-    report += '   ⬆️ UP: ' + up + '% | ⬇️ DOWN: ' + down + '%
-
-';
+    const arrow = up > down ? 'UP' : down > up ? 'DOWN' : 'MIXED';
+    report += (i+1) + '. ' + e.news + '\n';
+    report += '   UP: ' + up + '% | DOWN: ' + down + '%\n\n';
   });
-
-  report += '━━━━━━━━━━━━━━━━━━
-';
-  report += '*📊 Average Analysis:*
-';
-  report += '⬆️ Avg UP: ' + avgUp + '%
-';
-  report += '⬇️ Avg DOWN: ' + avgDown + '%
-
-';
-  report += '*🎯 Final Verdict:*
-';
-  report += verdict + '
-';
-  report += '━━━━━━━━━━━━━━━━━━
-';
-  report += '_Powered by Nifty News Tracker_';
-
-  const waUrl = 'https://wa.me/?text=' + encodeURIComponent(report);
+  report += '--------------------\n';
+  report += '*Average Analysis:*\n';
+  report += 'Avg UP: ' + avgUp + '%\n';
+  report += 'Avg DOWN: ' + avgDown + '%\n\n';
+  report += '*Final Verdict: ' + verdict + '*\n';
+  report += '--------------------\n';
+  report += 'Powered by Nifty News Tracker';
+  var waUrl = 'https://wa.me/?text=' + encodeURIComponent(report);
   window.open(waUrl, '_blank');
 }
-
 function autoCalc(changed) {
   const down = document.getElementById('downProb');
   const up = document.getElementById('upProb');
